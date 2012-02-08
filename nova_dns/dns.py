@@ -35,7 +35,7 @@ from nova import wsgi
 from nova import service
 #from nova_dns import keystone_utils
 from nova_dns import __version__ 
-
+from nova_dns.backend import DNSRecord, DNSSOARecord
 
 LOG = logging.getLogger("nova_dns.dns")
 FLAGS = flags.FLAGS
@@ -110,20 +110,31 @@ class Controller(object):
 	    elif action=="zone_del":
 		result=self.manager.drop(args['zonename'], args.get('force', None))
 	    elif action=="zone_add":
-		import pdb; pdb.set_trace()
 		soa={}
 		for p in ("primary", "hostmaster", "serial", "refresh",
 		    "retry", "expire", "ttl"):
 		    soa[p]=req.GET.get(p, None)
 		result=self.manager.add(args['zonename'], soa)
 	    elif action=="list":
-		result=[r.__dict_ for r in self.manager.get(args['zonename']).list()]
+		result=[r.__dict__ for r in self.manager.get(args['zonename']).get()]
 	    elif action=="record_add":
-		pass	
+		rec=DNSRecord(
+		    name="" if args['name']=='@' else args['name'],
+		    content=args['content'], type=args['type'], 
+		    ttl=req.GET.get('ttl', None),
+		    priority=req.GET.get('priority', None))
+		result=self.manager.get(args['zonename']).add(rec)		
 	    elif action=="record_del":
-		pass
+		name="" if args['name']=='@' else args['name']
+		result=self.manager.get(args['zonename']).delete(name, args['type'])
 	    elif action=="record_edit":
-		pass
+		result=self.manager.get(args['zonename']).set(
+		    name=name, 
+		    type=args['type'],
+		    content=req.GET.get('content', None),
+		    ttl=req.GET.get('ttl', None),
+		    priority=req.GET.get('priority', None)
+		)
 	    else:
 		raise Exception("Incorrect action: "+action)
 	    return webob.Response(json.dumps({"result":result, "error":None}), 
@@ -158,12 +169,14 @@ class App(wsgi.Router):
 	    return JSON (array of objects). Will return 'err' if zone or
 		or (name, type) not exists
 	PUT /record/zonename/name/type/content[?ttl&priority]
-	    add record. return 'ok' on success
+	    add record. return 'ok' on success. set name to '@' if empty
 	POST /record/zonename/name/type?[params] 
 	    return 'ok' on success, 'err' if zonename or (name, type) not exists
 	DELETE /record/zonename/name/type
 	"""
-
+	#FIXME rewrite dict(controller=Controller(), action="...") to 
+	#controller=Controller
+	#....controller=conntroller.index
         map = routes.Mapper()
         map.connect(None, "/zone/", 
 	    controller=Controller(), action="index")

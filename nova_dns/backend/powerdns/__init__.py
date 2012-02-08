@@ -5,7 +5,6 @@ import time
 from nova import flags
 from nova import log as logging
 from nova_dns.backend import DNSManager, DNSZone, DNSRecord, DNSSOARecord
-from nova_dns.backend.powerdns import api
 from nova_dns.backend.powerdns.session import get_session
 from nova_dns.backend.powerdns.models import Domains, Records
 LOG = logging.getLogger("nova_dns.backend.powerdns")
@@ -14,7 +13,6 @@ models.register_models()
 
 class Manager(DNSManager):
     def __init__(self):
- 	api.configure_backend()
 	self.session=get_session()
     def list(self): 
 	return [name[0] for name in self.session.query(Domains.name).all()]
@@ -71,15 +69,51 @@ class PowerDNSZone(DNSZone):
 	rec.ttl=v.ttl
 	rec.prio=v.priority
 	rec.change_date=int(time.time())
+	#check uniq()
 	self.session.add(rec)
+	self.session.flush()
+	self._update_serial(rec.change_date)
+	return "ok"
+    def get(self, name='', type=None):
+	q=self._q();
+	if name:
+	    self._qname(q,name)
+	if type:
+	    self._qtype(q,type)
+	res=[]
+	for r in q.all():
+	    if r.type=='SOA':
+		res.append(DNSSOARecord(*r.content.split()))
+	    else:
+		res.append(DNSRecord(name=r.name, content=r.content,
+		    priority=r.prio, ttl=r.ttl))
+	return res
+    def set(self, name, type, content="", priority="", ttl=""):
+	q=self._q(); 
+	self._qname(q, name); 
+	self._qtype(q, type);
+	rec=q.first()
+	if not rec:
+	    raise Exception("Not found record (%s,%s)" % (name, type))
+	if content:
+	    rec.content=content
+	if ttl:
+	    rec.ttl=ttl
+	if priority:
+	    rec.prio=priority
+	rec.change_date=int(time.time())
+	self.session.merge(rec)
 	self._update_serial(rec.change_date)
 	self.session.flush()
-    def get(self, name='', type=None):
-	pass	
-    def set(self, record):
-	pass
     def delete(self, name, type=None):
-	pass
+	q=self._q()
+	self._qname(q, name)
+	if type:
+	    self._qtype(q, type)
+	if q.delete():
+	    return "ok"
+	else:
+	    raise Exception("No records was deleted")	
     def _update_serial(self, serial):
 	#TODO change to get_soa
 	soa=self._q().filter(Records.type=='SOA').first()
@@ -90,5 +124,9 @@ class PowerDNSZone(DNSZone):
 	soa.update({"content":content})
     def _q(self):
 	return self.session.query(Records).filter(Records.domain_id==self.domain_id)
+    def _qtype(self,q,type):
+	q=q.filter(Records.type==type.upper())
+    def _qname(self,q,name):
+	q=q.filter(Records.name==name+"."+self.zone_name)
 	
 

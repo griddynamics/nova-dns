@@ -67,12 +67,11 @@ class DNSZone:
     def get(self, name, type=None):
 	pass
     @abstractmethod
-    def set(self, record):
+    def set(self, name, type, content, priority, ttl):
 	pass
     @abstractmethod
     def delete(self, name, type):
 	pass
-    @abstractmethod
 
 class DNSRecord:
     def __init__(self, name, type, content, priority=None, ttl=None):
