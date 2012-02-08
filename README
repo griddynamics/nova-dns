@@ -1,0 +1,38 @@
+Overview
+===========================
+
+The dns service listen for attach/detach floating ip to an instance and 
+update dns server accordingly.
+
+
+Configuration
+===========================
+
+TODO
+
+The server saves logs to ``/var/log/nova/nova-dns.log``.
+
+
+RPM Building
+===========================
+
+Clone nova-dns git repository, rename the top dir to nova-dns-VERSION,
+and tar it to nova-dns-VERSION.tar.gz. Place it to rpmbuild/SOURCES
+directory and run::
+
+    $ rpmbuild -ba nova-dns.spec
+
+
+Quickstart
+===========================
+
+Install the package::
+
+    # yum install nova-dns
+
+Start the server::
+
+    # /etc/init.d/nova-dns start
+
+Now instance state changes will be stored to a database.
+
