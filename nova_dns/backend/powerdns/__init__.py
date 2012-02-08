@@ -7,6 +7,7 @@ from nova import log as logging
 from nova_dns.backend import DNSManager, DNSZone, DNSRecord, DNSSOARecord
 from nova_dns.backend.powerdns.session import get_session
 from nova_dns.backend.powerdns.models import Domains, Records
+from sqlalchemy.sql import and_
 LOG = logging.getLogger("nova_dns.backend.powerdns")
 
 models.register_models()
@@ -54,7 +55,7 @@ class PowerDNSZone(DNSZone):
 	    raise Exception("Unknown zone: "+zone_name)
 	self.domain_id=domain.id
     def get_soa(self):
-	content=self._q().filter(Records.type=='SOA').first().content
+	content=self._q(type="SOA").first().content
 	#content format is "primary hostmaster serial refresh retry expire ttl"
 	#so we can magically pass it to consrtuctor
 	return DNSSOARecord(*content.split())
@@ -69,19 +70,14 @@ class PowerDNSZone(DNSZone):
 	rec.ttl=v.ttl
 	rec.prio=v.priority
 	rec.change_date=int(time.time())
-	#check uniq()
+	#FIXME check uniq in model - duplicating (name, type)
 	self.session.add(rec)
 	self.session.flush()
 	self._update_serial(rec.change_date)
 	return "ok"
     def get(self, name='', type=None):
-	q=self._q();
-	if name:
-	    self._qname(q,name)
-	if type:
-	    self._qtype(q,type)
 	res=[]
-	for r in q.all():
+	for r in self._q(name, type).all():
 	    if r.type=='SOA':
 		res.append(DNSSOARecord(*r.content.split()))
 	    else:
@@ -89,10 +85,9 @@ class PowerDNSZone(DNSZone):
 		    priority=r.prio, ttl=r.ttl))
 	return res
     def set(self, name, type, content="", priority="", ttl=""):
-	q=self._q(); 
-	self._qname(q, name); 
-	self._qtype(q, type);
-	rec=q.first()
+	if type=='SOA':
+	    raise exception("Can't change SOA")
+	rec=self._q(name,type).first()
 	if not rec:
 	    raise Exception("Not found record (%s,%s)" % (name, type))
 	if content:
@@ -103,30 +98,31 @@ class PowerDNSZone(DNSZone):
 	    rec.prio=priority
 	rec.change_date=int(time.time())
 	self.session.merge(rec)
-	self._update_serial(rec.change_date)
 	self.session.flush()
+	self._update_serial(rec.change_date)
+	return "ok"
     def delete(self, name, type=None):
-	q=self._q()
-	self._qname(q, name)
-	if type:
-	    self._qtype(q, type)
-	if q.delete():
+	if self._q(name, type).delete():
 	    return "ok"
 	else:
 	    raise Exception("No records was deleted")	
-    def _update_serial(self, serial):
+    def _update_serial(self,change_date):
+	import pdb; pdb.set_trace()
 	#TODO change to get_soa
-	soa=self._q().filter(Records.type=='SOA').first()
+	soa=self._q('','SOA').first()
 	v=soa.content.split()
 	#TODO change this to ordinar set()
-	v[2]=serial
+	v[2]=change_date
 	content=" ".join((str(f) for f in v))
-	soa.update({"content":content})
-    def _q(self):
-	return self.session.query(Records).filter(Records.domain_id==self.domain_id)
-    def _qtype(self,q,type):
-	q=q.filter(Records.type==type.upper())
-    def _qname(self,q,name):
-	q=q.filter(Records.name==name+"."+self.zone_name)
-	
+	#FIXME should change_date for SOA be changed here ? 
+	soa.update({"content":content, "change_date":change_date})
+	self.session.flush()
+    def _q(self, name, type):
+	q=self.session.query(Records).filter(Records.domain_id==self.domain_id)
+	if type:
+	    q=q.filter(Records.type==DNSRecord.normtype(type))
+	if name is None:
+	    return q
+	fqdn=name+"."+self.zone_name if name else self.zone_name
+	return q.filter(Records.name==fqdn)
 

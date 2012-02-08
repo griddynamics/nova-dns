@@ -21,7 +21,7 @@ flags.DEFINE_integer("dns_soa_retry", 3600,
 		    "time between retries if the slave fails to contact the master")
 flags.DEFINE_integer("dns_soa_expire", 604800,
 		    "Indicates when the zone data is no longer authoritative")
-record_types=set(('A', 'AAAA', 'MX', 'SOA', 'CNAME', 'PTR', 'SPF', 'SRV', 'TXT',
+record_types=set(('A', 'AAAA', 'MX', 'SOA', 'CNAME', 'PTR', 'SPF', 'SRV', 'TXT', 'NS', 
 	  'AFSDB', 'CERT', 'DNSKEY', 'DS', 'HINFO', 'KEY', 'LOC', 'NAPTR', 'RP', 'RRSIG', 
 	  'SSHFP'))
 
@@ -76,12 +76,16 @@ class DNSZone:
 class DNSRecord:
     def __init__(self, name, type, content, priority=None, ttl=None):
 	self.name=name
-	self.type=type.upper()
-	if self.type not in record_types:
-	    raise ValueError("Incorrect type: %s" % type)
+	self.type=DNSRecord.normtype(type)
 	self.content=content
 	self.priority=int(priority) if priority else 0
         self.ttl=int(ttl) if ttl else FLAGS.dns_default_ttl
+    @staticmethod
+    def normtype(type):
+	t=type.upper()
+	if t not in record_types:
+	    raise ValueError("Incorrect type: %s" % type)
+	return t
 
 class DNSSOARecord(DNSRecord):
     def __init__(self, primary, hostmaster, serial=None, refresh=None, retry=None, expire=None, ttl=None):

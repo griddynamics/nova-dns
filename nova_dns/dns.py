@@ -128,6 +128,7 @@ class Controller(object):
 		name="" if args['name']=='@' else args['name']
 		result=self.manager.get(args['zonename']).delete(name, args['type'])
 	    elif action=="record_edit":
+		name="" if args['name']=='@' else args['name']
 		result=self.manager.get(args['zonename']).set(
 		    name=name, 
 		    type=args['type'],
