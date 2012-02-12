@@ -1,0 +1,10 @@
+0.0.3 [Mon Feb 13 09:49:17 EET 2012]
+* added simple listener (process only run_instances)
+0.0.2 [Sun Feb 12 20:43:54 EET 2012]
+* added amqp service 
+* added dumb listener (just output to log)
+* renamed `backend` to `dnsmanager`
+0.0.1 [Fri Feb 10 20:05:17 EET 2012]
+* initial release
+* dns rest service 
+* powerdns dns manager

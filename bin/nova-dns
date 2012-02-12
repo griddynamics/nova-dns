@@ -36,7 +36,7 @@ if os.path.exists(os.path.join(possible_topdir, "nova", "__init__.py")):
 sys.path.append(os.pardir)
 
 from nova import service
-from nova_dns import dns 
+from nova_dns import dns, amqp 
 
 
 from nova import flags
@@ -53,5 +53,5 @@ if __name__ == '__main__':
     logging.setup()
     utils.monkey_patch()
     #db_api.configure_backend()
-    service.serve(dns.Service())
+    service.serve(dns.Service(),amqp.Service())
     service.wait()

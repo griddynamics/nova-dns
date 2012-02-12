@@ -35,14 +35,12 @@ from nova import wsgi
 from nova import service
 #from nova_dns import keystone_utils
 from nova_dns import __version__ 
-from nova_dns.backend import DNSRecord, DNSSOARecord
+from nova_dns.dnsmanager import DNSRecord, DNSSOARecord
 
 LOG = logging.getLogger("nova_dns.dns")
 FLAGS = flags.FLAGS
 
 
-flags.DEFINE_string("dns_manager", "nova_dns.backend.powerdns.Manager",
-		    "DNS manager class")
 flags.DEFINE_string("dns_api_paste_config", "/etc/nova-dns/dns-api-paste.ini",
                     "File name for the paste.deploy config for nova-dns api")
 flags.DEFINE_string("dns_listen", "0.0.0.0",

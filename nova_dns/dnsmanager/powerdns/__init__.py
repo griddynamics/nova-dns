@@ -4,11 +4,11 @@ import time
 
 from nova import flags
 from nova import log as logging
-from nova_dns.backend import DNSManager, DNSZone, DNSRecord, DNSSOARecord
-from nova_dns.backend.powerdns.session import get_session
-from nova_dns.backend.powerdns.models import Domains, Records
+from nova_dns.dnsmanager import DNSManager, DNSZone, DNSRecord, DNSSOARecord
+from nova_dns.dnsmanager.powerdns.session import get_session
+from nova_dns.dnsmanager.powerdns.models import Domains, Records
 from sqlalchemy.sql import and_
-LOG = logging.getLogger("nova_dns.backend.powerdns")
+LOG = logging.getLogger("nova_dns.dnsmanager.powerdns")
 
 models.register_models()
 
@@ -107,7 +107,6 @@ class PowerDNSZone(DNSZone):
 	else:
 	    raise Exception("No records was deleted")	
     def _update_serial(self,change_date):
-	import pdb; pdb.set_trace()
 	#TODO change to get_soa
 	soa=self._q('','SOA').first()
 	v=soa.content.split()

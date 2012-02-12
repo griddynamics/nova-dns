@@ -16,7 +16,7 @@ flags.DEFINE_string('dns_sql_connection',
 		'connection string for powerdns sql database')
 
 
-LOG = logging.getLogger("nova_dns.backend.powerdns.session")
+LOG = logging.getLogger("nova_dns.dnsmanager.powerdns.session")
 
 _ENGINE = None
 _MAKER = None

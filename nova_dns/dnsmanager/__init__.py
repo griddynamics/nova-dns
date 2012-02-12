@@ -5,7 +5,7 @@ from nova import log as logging
 
 from abc import ABCMeta, abstractmethod
 
-LOG = logging.getLogger("nova_dns.backend")
+LOG = logging.getLogger("nova_dns.dnsmanager")
 FLAGS = flags.FLAGS
 
 

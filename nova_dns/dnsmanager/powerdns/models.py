@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import ForeignKeyConstraint
 
-from nova_dns.backend.powerdns.session import get_session, get_engine
+from nova_dns.dnsmanager.powerdns.session import get_session, get_engine
 
 
 BASE = declarative_base()
