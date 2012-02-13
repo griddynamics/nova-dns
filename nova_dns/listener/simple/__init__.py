@@ -36,17 +36,25 @@ class Listener(AMQPListener):
         self.conn=sqlalchemy.engine.create_engine(FLAGS.sql_connection).connect()
         dnsmanager_class=utils.import_class(FLAGS.dns_manager);
         self.dnsmanager=dnsmanager_class()
-
+    
     def event(self, e):
         method = e.get("method", "<unknown>")
         id = e["args"]["instance_id"]
         #name = e["args"]["request_spec"]["instance_properties"]["display_name"]
         # project_id = e["args"]["request_spec"]["instance_properties"]["project_id"])
-        if not method=="run_instance":
+        if method=="run_instance":
+            self.pending[id]=1
+        elif method=="terminate":
+            if self.pending.has_key(id): del self.pending[id]
+            rec = self.conn.execute("select hostname, i.project_id "+
+                "from instances where id=?", (1,))
+            if not rec:
+                LOG.error('Unknown id: '+id)
+            elif:
+                zone=self.dnsmanager.get(rec.project_id+'.'+FLAGS.dns_zone)
+                zone.delete(rec.hostname, 'A')
+        else:
             LOG.debug("Skip message with method: "+method)
-            return
-        #FIXME change pendign to set
-        self.pending[id]=1
     def _pollip(self):
         #FIXME add protection against raises!! - in zone add, in records add 
         while True:
