@@ -87,7 +87,7 @@ class Records(BASE, PowerDNSBase):
     ttl = Column(Integer)
     prio = Column(Integer)
     change_date = Column(Integer)
-    # TODO Index('nametype_index', (`name`,`type`))
+    # TODO Index('nametype_index', (`name`, `type`))
 
 
 def register_models():

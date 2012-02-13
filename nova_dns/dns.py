@@ -46,14 +46,14 @@ flags.DEFINE_string("dns_api_paste_config", "/etc/nova-dns/dns-api-paste.ini",
 flags.DEFINE_string("dns_listen", "0.0.0.0",
                     "IP address for DNS API to listen")
 flags.DEFINE_integer("dns_listen_port", 15353, 
-		    "DNS API port")
+                    "DNS API port")
 
 class Service(service.WSGIService):
     """
     """
     def __init__(self):
-	service.WSGIService.__init__(self, name="dns", 
-	    loader=wsgi.Loader(config_path=FLAGS.dns_api_paste_config))
+        service.WSGIService.__init__(self, name="dns", 
+            loader=wsgi.Loader(config_path=FLAGS.dns_api_paste_config))
 
 
 class VersionFilter(object):
@@ -66,14 +66,14 @@ class VersionFilter(object):
     @webob.dec.wsgify
     def __call__(self, req):
         if req.environ.get("PATH_INFO", "/") == "/":
-	    version = json.dumps({
-		"version": __version__,
-		"application": "nova-dns",
-		"links": [{ "href": "http://%s:%s/zones" % 
-		    (req.environ["SERVER_NAME"], req.environ["SERVER_PORT"]),
-	        "rel": "self"}]
-		})
-	    return webob.Response(version, content_type='application/json')
+            version = json.dumps({
+                "version": __version__,
+                "application": "nova-dns",
+                "links": [{ "href": "http://%s:%s/zones" % 
+                    (req.environ["SERVER_NAME"], req.environ["SERVER_PORT"]),
+                "rel": "self"}]
+                })
+            return webob.Response(version, content_type='application/json')
         return req.get_response(self.application)
 
     @classmethod
@@ -90,56 +90,56 @@ class Controller(object):
     """
 
     def __init__(self):
-	manager_class=utils.import_class(FLAGS.dns_manager);
-	self.manager=manager_class()
+        manager_class=utils.import_class(FLAGS.dns_manager);
+        self.manager=manager_class()
 
     @webob.dec.wsgify
     def __call__(self, req):
         """
         """
-	try:
-	    args=req.environ["wsgiorg.routing_args"][1]
-	    action=args["action"]
-	    result={}
-	    if action=="index":
-		result=self.manager.list()
-	    elif action=="zone_get":
-		result=self.manager.get(args['zonename']).get_soa().__dict__
-	    elif action=="zone_del":
-		result=self.manager.drop(args['zonename'], args.get('force', None))
-	    elif action=="zone_add":
-		soa={}
-		for p in ("primary", "hostmaster", "serial", "refresh",
-		    "retry", "expire", "ttl"):
-		    soa[p]=req.GET.get(p, None)
-		result=self.manager.add(args['zonename'], soa)
-	    elif action=="list":
-		result=[r.__dict__ for r in self.manager.get(args['zonename']).get()]
-	    elif action=="record_add":
-		rec=DNSRecord(
-		    name="" if args['name']=='@' else args['name'],
-		    content=args['content'], type=args['type'], 
-		    ttl=req.GET.get('ttl', None),
-		    priority=req.GET.get('priority', None))
-		result=self.manager.get(args['zonename']).add(rec)		
-	    elif action=="record_del":
-		name="" if args['name']=='@' else args['name']
-		result=self.manager.get(args['zonename']).delete(name, args['type'])
-	    elif action=="record_edit":
-		name="" if args['name']=='@' else args['name']
-		result=self.manager.get(args['zonename']).set(
-		    name=name, 
-		    type=args['type'],
-		    content=req.GET.get('content', None),
-		    ttl=req.GET.get('ttl', None),
-		    priority=req.GET.get('priority', None)
-		)
-	    else:
-		raise Exception("Incorrect action: "+action)
-	    return webob.Response(json.dumps({"result":result, "error":None}), 
-		content_type='application/json')
-	except Exception as e:
-	    return webob.Response(json.dumps({"result":None, "error":str(e)}),
+        try:
+            args=req.environ["wsgiorg.routing_args"][1]
+            action=args["action"]
+            result={}
+            if action=="index":
+                result=self.manager.list()
+            elif action=="zone_get":
+                result=self.manager.get(args['zonename']).get_soa().__dict__
+            elif action=="zone_del":
+                result=self.manager.drop(args['zonename'], args.get('force', None))
+            elif action=="zone_add":
+                soa={}
+                for p in ("primary", "hostmaster", "serial", "refresh",
+                    "retry", "expire", "ttl"):
+                    soa[p]=req.GET.get(p, None)
+                result=self.manager.add(args['zonename'], soa)
+            elif action=="list":
+                result=[r.__dict__ for r in self.manager.get(args['zonename']).get()]
+            elif action=="record_add":
+                rec=DNSRecord(
+                    name="" if args['name']=='@' else args['name'],
+                    content=args['content'], type=args['type'], 
+                    ttl=req.GET.get('ttl', None),
+                    priority=req.GET.get('priority', None))
+                result=self.manager.get(args['zonename']).add(rec)                
+            elif action=="record_del":
+                name="" if args['name']=='@' else args['name']
+                result=self.manager.get(args['zonename']).delete(name, args['type'])
+            elif action=="record_edit":
+                name="" if args['name']=='@' else args['name']
+                result=self.manager.get(args['zonename']).set(
+                    name=name, 
+                    type=args['type'],
+                    content=req.GET.get('content', None),
+                    ttl=req.GET.get('ttl', None),
+                    priority=req.GET.get('priority', None)
+                )
+            else:
+                raise Exception("Incorrect action: "+action)
+            return webob.Response(json.dumps({"result":result, "error":None}), 
+                content_type='application/json')
+        except Exception as e:
+            return webob.Response(json.dumps({"result":None, "error":str(e)}),
                 content_type='application/json')
 
 class App(wsgi.Router):
@@ -148,54 +148,54 @@ class App(wsgi.Router):
     """
 
     def __init__(self):
-	"""
-	GET / 
-	    return version info and links
-	GET /zone
-	    return list of all zones 
-	GET /zone/name
-	    return SSON for SOA if zone exists
-	PUT /zone/name[?soa_params]
-	    create new zone. if no params for SOA provided, backend
-	    _has_to_ use reasonable defaults. Return 'ok' on success
-	DELETE /zone/name[?force]
-	    drop zone and all records in zone. 
-	    if "force" param provided, will delete all sub-zones
-	    if not - will refuse to delete if there are any sub-zone for
-		this zone 
-	    return "ok" on success
-	GET /record/zonename[?name=&type=]
-	    return JSON (array of objects). Will return 'err' if zone or
-		or (name, type) not exists
-	PUT /record/zonename/name/type/content[?ttl&priority]
-	    add record. return 'ok' on success. set name to '@' if empty
-	POST /record/zonename/name/type?[params] 
-	    return 'ok' on success, 'err' if zonename or (name, type) not exists
-	DELETE /record/zonename/name/type
-	"""
-	#FIXME rewrite dict(controller=Controller(), action="...") to 
-	#controller=Controller
-	#....controller=conntroller.index
+        """
+        GET / 
+            return version info and links
+        GET /zone
+            return list of all zones 
+        GET /zone/name
+            return SSON for SOA if zone exists
+        PUT /zone/name[?soa_params]
+            create new zone. if no params for SOA provided, backend
+            _has_to_ use reasonable defaults. Return 'ok' on success
+        DELETE /zone/name[?force]
+            drop zone and all records in zone. 
+            if "force" param provided, will delete all sub-zones
+            if not - will refuse to delete if there are any sub-zone for
+                this zone 
+            return "ok" on success
+        GET /record/zonename[?name=&type=]
+            return JSON (array of objects). Will return 'err' if zone or
+                or (name, type) not exists
+        PUT /record/zonename/name/type/content[?ttl&priority]
+            add record. return 'ok' on success. set name to '@' if empty
+        POST /record/zonename/name/type?[params] 
+            return 'ok' on success, 'err' if zonename or (name, type) not exists
+        DELETE /record/zonename/name/type
+        """
+        #FIXME rewrite dict(controller=Controller(), action="...") to 
+        #controller=Controller
+        #....controller=conntroller.index
         map = routes.Mapper()
         map.connect(None, "/zone/", 
-	    controller=Controller(), action="index")
+            controller=Controller(), action="index")
         map.connect(None, "/zone/{zonename}", conditions=dict(method=["GET"]), 
-	    controller=Controller(), action="zone_get")
+            controller=Controller(), action="zone_get")
         map.connect(None, "/zone/{zonename}", conditions=dict(method=["PUT"]), 
-	    controller=Controller(), action="zone_add")
+            controller=Controller(), action="zone_add")
         map.connect(None, "/zone/{zonename}", conditions=dict(method=["DELETE"]), 
-	    controller=Controller(), action="zone_del")
+            controller=Controller(), action="zone_del")
         map.connect(None, "/record/{zonename}", conditions=dict(method=["GET"]), 
-	    controller=Controller(), action="list")
+            controller=Controller(), action="list")
         map.connect(None, "/record/{zonename}/{name}/{type}/{content}",
-	    conditions=dict(method=["PUT"]), controller=Controller(),
-	    action="record_add")
-	map.connect(None, "/record/{zonename}/{name}/{type}", 
-	    conditions=dict(method=["POST"]), controller=Controller(),
-	    action="record_edit")
-	map.connect(None, "/record/{zonename}/{name}/{type}", 
-	    conditions=dict(method=["DELETE"]), controller=Controller(),
-	    action="record_del")
+            conditions=dict(method=["PUT"]), controller=Controller(),
+            action="record_add")
+        map.connect(None, "/record/{zonename}/{name}/{type}", 
+            conditions=dict(method=["POST"]), controller=Controller(),
+            action="record_edit")
+        map.connect(None, "/record/{zonename}/{name}/{type}", 
+            conditions=dict(method=["DELETE"]), controller=Controller(),
+            action="record_del")
         super(App, self).__init__(map)
 
     @classmethod

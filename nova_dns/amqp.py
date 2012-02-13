@@ -33,9 +33,9 @@ class Service(object):
                           password=FLAGS.rabbit_password,
                           virtual_host=FLAGS.rabbit_virtual_host)
         self.connection = None
-	self.eventlet = None
-	listener_class = utils.import_class(FLAGS.dns_listener);
-	self.listener = listener_class()
+        self.eventlet = None
+        listener_class = utils.import_class(FLAGS.dns_listener);
+        self.listener = listener_class()
 
     def reconnect(self):
         if self.connection:
@@ -79,7 +79,7 @@ class Service(object):
         """
         This function receive ``body`` and pass it to listener manager
         """
-	self.listener.event(body)
+        self.listener.event(body)
 
         try:
             routing_key = message.delivery_info["routing_key"]

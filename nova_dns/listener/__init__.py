@@ -16,5 +16,5 @@ class AMQPListener:
 
     @abstractmethod
     def event(self, event):
-	"""process event"""
-	pass
+        """process event"""
+        pass

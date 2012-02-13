@@ -1,0 +1,21 @@
+* DNS API
+** rest docs/tests
+** DNS api docs
+** powerdns tests 
+** keystone auth in REST
+** add support for 'robot' records - refuse for robot to update record if
+   it somebody added/changed it
+** add logging in rest / api 
+* AMQP
+** add support for terminate 
+** on run instance create zone(s) hostname.projectname.fixedzone and add
+   'A' record 
+** work with PTR records - probably support both plain reverse zone
+   delegation and store it in forward zone
+** work thru API
+** save state, after restarting sync DNS with nova
+** docs/tests
+** change to work with REST instead of DNS api
+** support floating IP
+* Dashboard/Horizone
+* nova2ools
