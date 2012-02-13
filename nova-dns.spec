@@ -5,7 +5,7 @@
 %define mod_name nova_dns
 
 Name:             nova-dns
-Version:          0.0.1
+Version:          0.0.3
 Release:          1
 Summary:          REST API for DNS configuration and service to add records for fixed ips
 License:          GNU LGPL v2.1
@@ -21,14 +21,8 @@ Requires:         python-nova
 Requires:         start-stop-daemon
 
 %description
-Nova is a cloud computing fabric controller (the main part of an IaaS system)
-built to match the popular AWS EC2 and S3 APIs. It is written in Python, using
-the Tornado and Twisted frameworks, and relies on the standard AMQP messaging
-protocol, and the Redis KVS.
-
-TODO
-This package contains the service to add dns records for instances with 
-attached floating ip.
+This package contains the service to add dns records for instances and
+REST API to control DNS 
 
 
 %package doc
