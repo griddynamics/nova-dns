@@ -34,6 +34,7 @@ class Listener(AMQPListener):
         self.conn=sqlalchemy.engine.create_engine(FLAGS.sql_connection).connect()
         dnsmanager_class=utils.import_class(FLAGS.dns_manager);
         self.dnsmanager=dnsmanager_class()
+        self.eventlet = eventlet.spawn(self._pollip)
 
     def event(self, e):
         method = e.get("method", "<unknown>")
@@ -43,16 +44,16 @@ class Listener(AMQPListener):
         if method=="run_instance":
             LOG.info("Run instance %s. Waiting on assing ip address" % (str(id),))
             self.pending[id]=1
-        elif method=="terminate":
+        elif method=="terminate_instance":
             if self.pending.has_key(id): del self.pending[id]
-            rec = self.conn.execute("select hostname, i.project_id "+
-                "from instances where id=?", (1,))
+            rec = self.conn.execute("select hostname, project_id "+
+                "from instances where id=%s", id).first()
             if not rec:
                 LOG.error('Unknown id: '+id)
             else:
                 try:
-                    LOG.info("Instance %s hostname $s was terminated" %
-                        (rec.id, rec.hostname))
+                    LOG.info("Instance %s hostname '%s' was terminated" %
+                        (id, rec.hostname))
                     #TODO check if record was added/changed by admin
                     zone=self.dnsmanager.get(rec.project_id+'.'+FLAGS.dns_zone)
                     zone.delete(rec.hostname, 'A')
@@ -70,9 +71,9 @@ class Listener(AMQPListener):
                 select i.hostname, i.id, i.project_id, f.address
                 from instances i, fixed_ips f
                 where i.id=f.instance_id"""):
+                if r.id not in self.pending: continue
                 LOG.info("Instance %s hostname %s adding ip %s" %
                     (r.id, r.hostname, r.address))
-                if r.id not in self.pending: continue
                 del self.pending['r.id']
                 zones_list=self.dnsmanager.list()
                 if FLAGS.dns_zone not in zones_list:
