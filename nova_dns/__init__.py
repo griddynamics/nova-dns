@@ -1,7 +1,7 @@
 
 __version__ = "0.0.4"
 
-try: 
+try:
     from nova import flags
     FLAGS = flags.FLAGS
 

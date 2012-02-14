@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import re 
+import re
 
 from nova import flags
 from nova import log as logging
@@ -23,8 +23,8 @@ flags.DEFINE_integer("dns_soa_retry", 3600,
                     "time between retries if the slave fails to contact the master")
 flags.DEFINE_integer("dns_soa_expire", 604800,
                     "Indicates when the zone data is no longer authoritative")
-record_types=set(('A', 'AAAA', 'MX', 'SOA', 'CNAME', 'PTR', 'SPF', 'SRV', 'TXT', 'NS', 
-          'AFSDB', 'CERT', 'DNSKEY', 'DS', 'HINFO', 'KEY', 'LOC', 'NAPTR', 'RP', 'RRSIG', 
+record_types=set(('A', 'AAAA', 'MX', 'SOA', 'CNAME', 'PTR', 'SPF', 'SRV', 'TXT', 'NS',
+          'AFSDB', 'CERT', 'DNSKEY', 'DS', 'HINFO', 'KEY', 'LOC', 'NAPTR', 'RP', 'RRSIG',
           'SSHFP'))
 
 
@@ -48,8 +48,8 @@ class DNSManager:
 
     @abstractmethod
     def get(self, zone_name):
-        """ return DNSZone object for zone_name. 
-        If zone not exist, raise exception 
+        """ return DNSZone object for zone_name.
+        If zone not exist, raise exception
          """
         pass
 

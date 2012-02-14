@@ -1,4 +1,4 @@
-#!/usr/bin/python 
+#!/usr/bin/python
 
 import time
 
@@ -15,7 +15,7 @@ models.register_models()
 class Manager(DNSManager):
     def __init__(self):
         self.session=get_session()
-    def list(self): 
+    def list(self):
         return [name[0] for name in self.session.query(Domains.name).all()]
     def add(self, zone_name, soa):
         if zone_name in self.list():
@@ -27,7 +27,7 @@ class Manager(DNSManager):
         soa=DNSSOARecord(**soa)
         # PowerDNS-specific. TODO make this more pytonish - with objects
         # and bells
-        soa.content=" ".join((str(f) for f in (soa.primary, soa.hostmaster, soa.serial, 
+        soa.content=" ".join((str(f) for f in (soa.primary, soa.hostmaster, soa.serial,
             soa.refresh, soa.retry, soa.expire, soa.ttl)))
         PowerDNSZone(zone_name).add(soa)
         return "ok"
@@ -77,7 +77,7 @@ class PowerDNSZone(DNSZone):
         #FIXME check uniq in model - duplicating (name, type)
         self.session.add(rec)
         self.session.flush()
-        LOG.info("Record (%s, %s, %s) in zone %s was added" % 
+        LOG.info("Record (%s, %s, %s) in zone %s was added" %
             (rec.name, rec.type, rec.content, self.zone_name))
         self._update_serial(rec.change_date)
         return "ok"
@@ -106,14 +106,14 @@ class PowerDNSZone(DNSZone):
         self.session.merge(rec)
         self.session.flush()
         self._update_serial(rec.change_date)
-        LOG.info("Record (%s, %s) in zone %s was changed" % 
+        LOG.info("Record (%s, %s) in zone %s was changed" %
             (rec.name, rec.type, self.zone_name))
         return "ok"
     def delete(self, name, type=None):
         if self._q(name, type).delete():
             return "ok"
         else:
-            raise Exception("No records was deleted")        
+            raise Exception("No records was deleted")
     def _update_serial(self, change_date):
         #TODO change to get_soa
         soa=self._q('', 'SOA').first()
@@ -121,7 +121,7 @@ class PowerDNSZone(DNSZone):
         #TODO change this to ordinar set()
         v[2]=change_date
         content=" ".join((str(f) for f in v))
-        #FIXME should change_date for SOA be changed here ? 
+        #FIXME should change_date for SOA be changed here ?
         soa.update({"content":content, "change_date":change_date})
         self.session.flush()
     def _q(self, name, type):

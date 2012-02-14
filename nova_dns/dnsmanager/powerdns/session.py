@@ -11,7 +11,7 @@ from nova import log as logging
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string('dns_sql_connection',
-                "mysql://pdns:pdns@localhost/pdns",        
+                "mysql://pdns:pdns@localhost/pdns",
 #              'sqlite:////var/lib/nova/nova_dns.sqlite',
                 'connection string for powerdns sql database')
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python 
+#!/usr/bin/python
 
 """Simple listener:
 - doesn't sync state with dns after restart
@@ -34,7 +34,7 @@ class Listener(AMQPListener):
         self.conn=sqlalchemy.engine.create_engine(FLAGS.sql_connection).connect()
         dnsmanager_class=utils.import_class(FLAGS.dns_manager);
         self.dnsmanager=dnsmanager_class()
-    
+
     def event(self, e):
         method = e.get("method", "<unknown>")
         id = e["args"].get("instance_id", None)
@@ -63,11 +63,11 @@ class Listener(AMQPListener):
     def _pollip(self):
         while True:
             time.sleep(SLEEP)
-            if not len(self.pending): 
+            if not len(self.pending):
                 LOG.debug('empty pending queue - continue')
                 continue
             for r in self.conn.execute("""
-                select i.hostname, i.id, i.project_id, f.address 
+                select i.hostname, i.id, i.project_id, f.address
                 from instances i, fixed_ips f
                 where i.id=f.instance_id"""):
                 LOG.info("Instance %s hostname %s adding ip %s" %
@@ -96,7 +96,7 @@ class Listener(AMQPListener):
                         LOG.warn(str(e))
                     except:
                         pass
-                try: 
+                try:
                     self.dnsmanager.get(zonename).add(
                         DNSRecord(name=r.hostname, type='A', content=r.address))
                 except ValueError as e:

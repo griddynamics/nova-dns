@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-#    Nova DNS 
+#    Nova DNS
 #    Copyright (C) GridDynamics Openstack Core Team, GridDynamics
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -31,10 +31,10 @@ import webob
 import routes
 import routes.middleware
 
-from nova import wsgi 
+from nova import wsgi
 from nova import service
 #from nova_dns import keystone_utils
-from nova_dns import __version__ 
+from nova_dns import __version__
 from nova_dns.dnsmanager import DNSRecord, DNSSOARecord
 
 LOG = logging.getLogger("nova_dns.dns")
@@ -45,14 +45,14 @@ flags.DEFINE_string("dns_api_paste_config", "/etc/nova-dns/dns-api-paste.ini",
                     "File name for the paste.deploy config for nova-dns api")
 flags.DEFINE_string("dns_listen", "0.0.0.0",
                     "IP address for DNS API to listen")
-flags.DEFINE_integer("dns_listen_port", 15353, 
+flags.DEFINE_integer("dns_listen_port", 15353,
                     "DNS API port")
 
 class Service(service.WSGIService):
     """
     """
     def __init__(self):
-        service.WSGIService.__init__(self, name="dns", 
+        service.WSGIService.__init__(self, name="dns",
             loader=wsgi.Loader(config_path=FLAGS.dns_api_paste_config))
 
 
@@ -69,7 +69,7 @@ class VersionFilter(object):
             version = json.dumps({
                 "version": __version__,
                 "application": "nova-dns",
-                "links": [{ "href": "http://%s:%s/zones" % 
+                "links": [{ "href": "http://%s:%s/zones" %
                     (req.environ["SERVER_NAME"], req.environ["SERVER_PORT"]),
                 "rel": "self"}]
                 })
@@ -118,17 +118,17 @@ class Controller(object):
             elif action=="record_add":
                 rec=DNSRecord(
                     name="" if args['name']=='@' else args['name'],
-                    content=args['content'], type=args['type'], 
+                    content=args['content'], type=args['type'],
                     ttl=req.GET.get('ttl', None),
                     priority=req.GET.get('priority', None))
-                result=self.manager.get(args['zonename']).add(rec)                
+                result=self.manager.get(args['zonename']).add(rec)
             elif action=="record_del":
                 name="" if args['name']=='@' else args['name']
                 result=self.manager.get(args['zonename']).delete(name, args['type'])
             elif action=="record_edit":
                 name="" if args['name']=='@' else args['name']
                 result=self.manager.get(args['zonename']).set(
-                    name=name, 
+                    name=name,
                     type=args['type'],
                     content=req.GET.get('content', None),
                     ttl=req.GET.get('ttl', None),
@@ -136,7 +136,7 @@ class Controller(object):
                 )
             else:
                 raise Exception("Incorrect action: "+action)
-            return webob.Response(json.dumps({"result":result, "error":None}), 
+            return webob.Response(json.dumps({"result":result, "error":None}),
                 content_type='application/json')
         except Exception as e:
             return webob.Response(json.dumps({"result":None, "error":str(e)}),
@@ -149,51 +149,51 @@ class App(wsgi.Router):
 
     def __init__(self):
         """
-        GET / 
+        GET /
             return version info and links
         GET /zone
-            return list of all zones 
+            return list of all zones
         GET /zone/name
             return SSON for SOA if zone exists
         PUT /zone/name[?soa_params]
             create new zone. if no params for SOA provided, backend
             _has_to_ use reasonable defaults. Return 'ok' on success
         DELETE /zone/name[?force]
-            drop zone and all records in zone. 
+            drop zone and all records in zone.
             if "force" param provided, will delete all sub-zones
             if not - will refuse to delete if there are any sub-zone for
-                this zone 
+                this zone
             return "ok" on success
         GET /record/zonename[?name=&type=]
             return JSON (array of objects). Will return 'err' if zone or
                 or (name, type) not exists
         PUT /record/zonename/name/type/content[?ttl&priority]
             add record. return 'ok' on success. set name to '@' if empty
-        POST /record/zonename/name/type?[params] 
+        POST /record/zonename/name/type?[params]
             return 'ok' on success, 'err' if zonename or (name, type) not exists
         DELETE /record/zonename/name/type
         """
-        #FIXME rewrite dict(controller=Controller(), action="...") to 
+        #FIXME rewrite dict(controller=Controller(), action="...") to
         #controller=Controller
         #....controller=conntroller.index
         map = routes.Mapper()
-        map.connect(None, "/zone/", 
+        map.connect(None, "/zone/",
             controller=Controller(), action="index")
-        map.connect(None, "/zone/{zonename}", conditions=dict(method=["GET"]), 
+        map.connect(None, "/zone/{zonename}", conditions=dict(method=["GET"]),
             controller=Controller(), action="zone_get")
-        map.connect(None, "/zone/{zonename}", conditions=dict(method=["PUT"]), 
+        map.connect(None, "/zone/{zonename}", conditions=dict(method=["PUT"]),
             controller=Controller(), action="zone_add")
-        map.connect(None, "/zone/{zonename}", conditions=dict(method=["DELETE"]), 
+        map.connect(None, "/zone/{zonename}", conditions=dict(method=["DELETE"]),
             controller=Controller(), action="zone_del")
-        map.connect(None, "/record/{zonename}", conditions=dict(method=["GET"]), 
+        map.connect(None, "/record/{zonename}", conditions=dict(method=["GET"]),
             controller=Controller(), action="list")
         map.connect(None, "/record/{zonename}/{name}/{type}/{content}",
             conditions=dict(method=["PUT"]), controller=Controller(),
             action="record_add")
-        map.connect(None, "/record/{zonename}/{name}/{type}", 
+        map.connect(None, "/record/{zonename}/{name}/{type}",
             conditions=dict(method=["POST"]), controller=Controller(),
             action="record_edit")
-        map.connect(None, "/record/{zonename}/{name}/{type}", 
+        map.connect(None, "/record/{zonename}/{name}/{type}",
             conditions=dict(method=["DELETE"]), controller=Controller(),
             action="record_del")
         super(App, self).__init__(map)
