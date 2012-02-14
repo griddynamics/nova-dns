@@ -1,3 +1,8 @@
+0.0.4 [Tue Feb 14 09:09:39 EET 2012]
+* removed raise conditions in amqp listener with add zone / add record
+* added logging 
+* added normname for hostname and zone_names 
+* add support of 'terminate' instance for simple listener
 0.0.3 [Mon Feb 13 09:49:17 EET 2012]
 * added simple listener (process only run_instances)
 0.0.2 [Sun Feb 12 20:43:54 EET 2012]

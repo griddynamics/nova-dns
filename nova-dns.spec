@@ -5,7 +5,7 @@
 %define mod_name nova_dns
 
 Name:             nova-dns
-Version:          0.0.3
+Version:          0.0.4
 Release:          1
 Summary:          REST API for DNS configuration and service to add records for fixed ips
 License:          GNU LGPL v2.1

@@ -1,8 +1,6 @@
 #!/usr/bin/python 
 
 """Simple listener:
-- track and add dns records only for instances boot
-- doesn't track terminate of instances
 - doesn't sync state with dns after restart
 - stateless"""
 
@@ -26,7 +24,7 @@ SLEEP = 60
 
 #TODO make own zone for every instance
 flags.DEFINE_string("dns_zone", "localzone", "Nova DNS base zone")
-flags.DEFINE_list("dns_ns", ["localhost"], "Name servers")
+flags.DEFINE_list("dns_ns", [("ns1","127.0.0.1"),], "Name servers")
 
 #TODO add flag "dns_create_ptr", and create PTR records
 
@@ -39,10 +37,11 @@ class Listener(AMQPListener):
     
     def event(self, e):
         method = e.get("method", "<unknown>")
-        id = e["args"]["instance_id"]
+        id = e["args"].get("instance_id", None)
         #name = e["args"]["request_spec"]["instance_properties"]["display_name"]
         # project_id = e["args"]["request_spec"]["instance_properties"]["project_id"])
         if method=="run_instance":
+            LOG.info("Run instance %s. Waiting on assing ip address" % (str(id),))
             self.pending[id]=1
         elif method=="terminate":
             if self.pending.has_key(id): del self.pending[id]
@@ -50,13 +49,18 @@ class Listener(AMQPListener):
                 "from instances where id=?", (1,))
             if not rec:
                 LOG.error('Unknown id: '+id)
-            elif:
-                zone=self.dnsmanager.get(rec.project_id+'.'+FLAGS.dns_zone)
-                zone.delete(rec.hostname, 'A')
+            else:
+                try:
+                    LOG.info("Instance %s hostname $s was terminated" %
+                        (rec.id, rec.hostname))
+                    #TODO check if record was added/changed by admin
+                    zone=self.dnsmanager.get(rec.project_id+'.'+FLAGS.dns_zone)
+                    zone.delete(rec.hostname, 'A')
+                except:
+                    pass
         else:
             LOG.debug("Skip message with method: "+method)
     def _pollip(self):
-        #FIXME add protection against raises!! - in zone add, in records add 
         while True:
             time.sleep(SLEEP)
             if not len(self.pending): 
@@ -66,22 +70,36 @@ class Listener(AMQPListener):
                 select i.hostname, i.id, i.project_id, f.address 
                 from instances i, fixed_ips f
                 where i.id=f.instance_id"""):
+                LOG.info("Instance %s hostname %s adding ip %s" %
+                    (r.id, r.hostname, r.address))
                 if r.id not in self.pending: continue
                 del self.pending['r.id']
-                #FIXME add normalizing project_id
                 zones_list=self.dnsmanager.list()
                 if FLAGS.dns_zone not in zones_list:
                     #Lazy create main zone and populate by ns
-                    #FIXME raise 
-                    self.dnsmanager.add(FLAGS.dns_zone)
-                    zone=self.dnsmanager.get(FLAGS.dns_zone)
-                    for ns in FLAGS.dns_ns:
-                        #FIXME raise
-                        zone.add(DNSRecord(name=ns, type="NS"))
+                    try:
+                        self.dnsmanager.add(FLAGS.dns_zone)
+                        zone=self.dnsmanager.get(FLAGS.dns_zone)
+                        for ns in FLAGS.dns_ns:
+                            zone.add(DNSRecord(name=ns[0], type="NS",
+                                content=ns[1]))
+                    except ValueError as e:
+                        LOG.warn(str(e))
+                    except:
+                        pass
                 zonename=r.project_id+'.'+FLAGS.dns_zone
                 if zonename not in zones_list:
-                    #FIXME raise
-                    self.dnsmanager.add(zonename)
-                #FIXME raise
-                self.dnsmanager.get(zonename).add(DNSRecord(name=r.hostname, 
-                    content=r.address))
+                    #TODO add exception ZoneExists and pass only it
+                    try:
+                        self.dnsmanager.add(zonename)
+                    except ValueError as e:
+                        LOG.warn(str(e))
+                    except:
+                        pass
+                try: 
+                    self.dnsmanager.get(zonename).add(
+                        DNSRecord(name=r.hostname, type='A', content=r.address))
+                except ValueError as e:
+                    LOG.warn(str(e))
+                except:
+                    pass

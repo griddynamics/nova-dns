@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import re 
+
 from nova import flags
 from nova import log as logging
 
@@ -75,7 +77,7 @@ class DNSZone:
 
 class DNSRecord:
     def __init__(self, name, type, content, priority=None, ttl=None):
-        self.name=name
+        self.name=DNSRecord.normname(name)
         self.type=DNSRecord.normtype(type)
         self.content=content
         self.priority=int(priority) if priority else 0
@@ -84,8 +86,15 @@ class DNSRecord:
     def normtype(type):
         t=type.upper()
         if t not in record_types:
-            raise ValueError("Incorrect type: %s" % type)
+            raise ValueError("Incorrect type: " + type)
         return t
+    @staticmethod
+    def normname(n):
+        name = n.lower()
+        if name=="" or re.match(r'\A(?:[\w\d_].)*(?:[\w\d_])\Z', name):
+            return name
+        else:
+            raise ValueError("Incorrect DNS name: " + name)
 
 class DNSSOARecord(DNSRecord):
     def __init__(self, primary, hostmaster, serial=None, refresh=None, retry=None, expire=None, ttl=None):
