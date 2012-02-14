@@ -5,7 +5,7 @@
 %define mod_name nova_dns
 
 Name:             nova-dns
-Version:          0.0.4
+Version:          0.0.5
 Release:          1
 Summary:          REST API for DNS configuration and service to add records for fixed ips
 License:          GNU LGPL v2.1
@@ -48,6 +48,8 @@ Documentation and examples for %{name}.
 export PYTHONPATH=%{buildroot}%{python_sitelib}
 make -C doc html
 install -p -D -m 755 redhat/nova-dns.init %{buildroot}%{_initrddir}/%{name}
+mkdir -p %{buildroot}/etc
+cp -a etc/nova-dns %{buildroot}/etc
 
 %clean
 %__rm -rf %{buildroot}

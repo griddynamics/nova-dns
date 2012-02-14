@@ -17,13 +17,13 @@ class Manager(DNSManager):
         self.session=get_session()
     def list(self):
         return [name[0] for name in self.session.query(Domains.name).all()]
-    def add(self, zone_name, soa):
+    def add(self, zone_name, soa={}):
         if zone_name in self.list():
             raise Exception('Zone already exists')
         zone_name=DNSRecord.normname(zone_name)
         self.session.add(Domains(name=zone_name, type="NATIVE"))
         self.session.flush()
-        LOG.info("Zone %s was added" % (zone_name))
+        LOG.info("[%s]: Zone was added" % (zone_name))
         soa=DNSSOARecord(**soa)
         # PowerDNS-specific. TODO make this more pytonish - with objects
         # and bells
@@ -40,7 +40,7 @@ class Manager(DNSManager):
         for domain in domains:
             PowerDNSZone(domain.name).drop()
             self.session.delete(domain)
-            LOG.info("Zone %s was deleted" % (domain.name))
+            LOG.info("[%s]: Zone was deleted" % (domain.name))
         self.session.flush()
         return "ok"
     def get(self, zone_name):
@@ -76,8 +76,8 @@ class PowerDNSZone(DNSZone):
         rec.change_date=int(time.time())
         self.session.add(rec)
         self.session.flush()
-        LOG.info("Record (%s, %s, %s) in zone %s was added" %
-            (rec.name, rec.type, rec.content, self.zone_name))
+        LOG.info("[%s]: Record (%s, %s, '%s') was added" %
+            (self.zone_name, rec.name, rec.type, rec.content))
         self._update_serial(rec.change_date)
         return "ok"
     def get(self, name='', type=None):
@@ -105,11 +105,13 @@ class PowerDNSZone(DNSZone):
         self.session.merge(rec)
         self.session.flush()
         self._update_serial(rec.change_date)
-        LOG.info("Record (%s, %s) in zone %s was changed" %
-            (rec.name, rec.type, self.zone_name))
+        LOG.info("[%s]: Record (%s, %s) was changed" % 
+            (self.zone_name, rec.name, rec.type))
         return "ok"
     def delete(self, name, type=None):
         if self._q(name, type).delete():
+            LOG.info("[%s]: Record (%s, %s) was deleted" % 
+                (self.zone_name, rec.name, rec.type))
             return "ok"
         else:
             raise Exception("No records was deleted")

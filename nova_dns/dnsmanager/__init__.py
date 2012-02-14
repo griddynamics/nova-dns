@@ -91,13 +91,13 @@ class DNSRecord:
     @staticmethod
     def normname(n):
         name = n.lower()
-        if name=="" or re.match(r'\A(?:[\w\d_].)*(?:[\w\d_])\Z', name):
+        if name=="" or re.match(r'\A(?:[\w\d-]+\.)*(?:[\w\d-]+)\Z', name):
             return name
         else:
             raise ValueError("Incorrect DNS name: " + name)
 
 class DNSSOARecord(DNSRecord):
-    def __init__(self, primary, hostmaster, serial=None, refresh=None, retry=None, expire=None, ttl=None):
+    def __init__(self, primary=None, hostmaster=None, serial=None, refresh=None, retry=None, expire=None, ttl=None):
         self.primary=primary if primary else FLAGS.dns_soa_primary
         self.hostmaster=hostmaster if hostmaster else FLAGS.dns_soa_email
         self.serial=serial if serial else 0

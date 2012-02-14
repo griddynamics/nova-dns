@@ -1,3 +1,12 @@
+0.0.5 [Tue Feb 14 19:47:32 EET 2012]
+* added etc/* in nova-dns.spec 
+* [DNS] adding `normname` normalization of domain names.
+* [PowerDNS] log tidify
+* [PowerDNS] add uniq index on (name,type) to avoid records
+  duplicating and speed up powerdns's lookup
+* [simple] bugfix: put back eventlet spawn, missed in prev 
+  release
+* remove trailing spaces
 0.0.4 [Tue Feb 14 09:09:39 EET 2012]
 * removed raise conditions in amqp listener with add zone / add record
 * added logging 
