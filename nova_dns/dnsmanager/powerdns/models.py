@@ -2,12 +2,10 @@
 SQLAlchemy models for Nova PowerDNS.
 """
 
-from sqlalchemy.orm import relationship, backref, object_mapper
-from sqlalchemy import Column, Integer, String, schema
-from sqlalchemy import ForeignKey, DateTime, Boolean, Text, Float
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import object_mapper
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import ForeignKeyConstraint
+from sqlalchemy.schema import Index 
 
 from nova_dns.dnsmanager.powerdns.session import get_session, get_engine
 
@@ -87,8 +85,8 @@ class Records(BASE, PowerDNSBase):
     ttl = Column(Integer)
     prio = Column(Integer)
     change_date = Column(Integer)
-    # TODO Index('nametype_index', (`name`, `type`))
 
+Index('nametype_index', Records.name, Records.type, unique=True)
 
 def register_models():
     """Register Models and create metadata."""
@@ -96,4 +94,5 @@ def register_models():
     engine = get_engine()
     for model in models:
         model.metadata.create_all(engine)
+    
 

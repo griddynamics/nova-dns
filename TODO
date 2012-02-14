@@ -5,7 +5,6 @@
 ** keystone auth in REST
 ** add support for 'robot' records - refuse for robot to update record if
    it somebody added/changed it
-** add logging in rest / api 
 * AMQP
 ** add support for terminate 
 ** on run instance create zone(s) hostname.projectname.fixedzone and add

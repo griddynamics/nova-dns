@@ -74,7 +74,6 @@ class PowerDNSZone(DNSZone):
         rec.ttl=v.ttl
         rec.prio=v.priority
         rec.change_date=int(time.time())
-        #FIXME check uniq in model - duplicating (name, type)
         self.session.add(rec)
         self.session.flush()
         LOG.info("Record (%s, %s, %s) in zone %s was added" %
