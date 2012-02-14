@@ -71,9 +71,11 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc README
+%doc Changelog
 %{_initrddir}/*
 %{python_sitelib}/%{mod_name}*
 %{_usr}/bin/*
+%config(noreplace) /etc/nova-dns
 
 %files doc
 %defattr(-,root,root,-)
