@@ -58,7 +58,7 @@ class PowerDNSZone(DNSZone):
             raise Exception("Unknown zone: "+zone_name)
         self.domain_id=domain.id
     def get_soa(self):
-        content=self._q(type="SOA").first().content
+        content=self._q(type="SOA", name='').first().content
         #content format is "primary hostmaster serial refresh retry expire ttl"
         #so we can magically pass it to consrtuctor
         return DNSSOARecord(*content.split())
@@ -125,7 +125,7 @@ class PowerDNSZone(DNSZone):
         #FIXME should change_date for SOA be changed here ?
         soa.update({"content":content, "change_date":change_date})
         self.session.flush()
-    def _q(self, name, type):
+    def _q(self, name=None, type=None):
         q=self.session.query(Records).filter(Records.domain_id==self.domain_id)
         if type:
             q=q.filter(Records.type==DNSRecord.normtype(type))

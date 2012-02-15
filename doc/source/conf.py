@@ -25,7 +25,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.coverage']
+extensions = ['sphinx.ext.autodoc']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -214,3 +214,7 @@ man_pages = [
     ('index', 'novadns', u'Nova DNS Documentation',
      [u'Nikita Savin'], 1)
 ]
+
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes']
+html_theme = 'bootstrap'

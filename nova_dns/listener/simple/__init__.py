@@ -24,7 +24,7 @@ SLEEP = 60
 
 #TODO make own zone for every instance
 flags.DEFINE_string("dns_zone", "localzone", "Nova DNS base zone")
-flags.DEFINE_list("dns_ns", [("ns1","127.0.0.1"),], "Name servers")
+flags.DEFINE_list("dns_ns", "ns1:127.0.0.1", "Name servers, in format ns1:ip1, ns2:ip2")
 
 #TODO add flag "dns_create_ptr", and create PTR records
 
@@ -82,8 +82,9 @@ class Listener(AMQPListener):
                         self.dnsmanager.add(FLAGS.dns_zone)
                         zone=self.dnsmanager.get(FLAGS.dns_zone)
                         for ns in FLAGS.dns_ns:
-                            zone.add(DNSRecord(name=ns[0], type="NS",
-                                content=ns[1]))
+                            (name,content)=ns.split(':',2)
+                            zone.add(DNSRecord(name=name, type="NS",
+                                content=content))
                     except ValueError as e:
                         LOG.warn(str(e))
                     except:
