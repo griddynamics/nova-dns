@@ -69,11 +69,14 @@ class Domains(BASE, PowerDNSBase):
     __tablename__ = 'domains'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False, unique=True, index=True)
-    master = Column(String(255), nullable=False)
-    last_check = Column(Integer, nullable=False)
-    type = Column(String(6), nullable=False)
-    notified_serial = Column(Integer, nullable=False)
-    account = Column(String(40), nullable=False)
+    #TODO now only 'NATIVE' sync supported (with database
+    #replication/copying outside of powerdns). Add support via AXFR.
+    #Change fields to NOT NULL.
+    master = Column(String(255), nullable=True)
+    last_check = Column(Integer, nullable=True)
+    type = Column(String(6), nullable=True)
+    notified_serial = Column(Integer, nullable=True)
+    account = Column(String(40), nullable=True)
 
 class Records(BASE, PowerDNSBase):
     __tablename__ = 'records'
