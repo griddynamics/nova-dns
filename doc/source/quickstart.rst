@@ -5,16 +5,14 @@ Environment
 ***********
 
 Quick installation of nova-dns with:
+
 * use **PowerDNS** as DNS backend (with
-*nova_dns.dnsmanager.powerdns.Manager* **dns_manager**) 
+  *nova_dns.dnsmanager.powerdns.Manager* **dns_manager**) 
 * use **MySQL** database as storage for **PowerDNS**
 * use *nova_dns.listener.simple.Listener* as AMQP listener
 
 Installation
 ************
-
-Install the packages
-====================
 
 .. code-block:: bash
 
@@ -31,7 +29,7 @@ Configuration
 *************
 
 Create database
-===============
+---------------
 
 .. code-block:: bash
 
@@ -44,7 +42,7 @@ Create database
      | mysql -u root -p"$DBROOTPASS"
 
 Configure PowerDNS
-==================
+------------------
 
 Choose local ip addresses to bind, comma separated:
 
@@ -72,7 +70,7 @@ Start the server and add it to autostart:
 .. warning:: quick setup of slave PowerDNS
 
 Configure nova-dns 
-==================
+------------------
 
 locate nova.conf (usually in /etc/nova/nova.conf):
 

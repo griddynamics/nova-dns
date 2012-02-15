@@ -80,14 +80,14 @@ class PowerDNSZone(DNSZone):
             (self.zone_name, rec.name, rec.type, rec.content))
         self._update_serial(rec.change_date)
         return "ok"
-    def get(self, name='', type=None):
+    def get(self, name=None, type=None):
         res=[]
         for r in self._q(name, type).all():
             if r.type=='SOA':
                 res.append(DNSSOARecord(*r.content.split()))
             else:
-                res.append(DNSRecord(name=r.name, content=r.content,
-                    priority=r.prio, ttl=r.ttl))
+                res.append(DNSRecord(name=r.name, type=r.type, 
+                    content=r.content, priority=r.prio, ttl=r.ttl))
         return res
     def set(self, name, type, content="", priority="", ttl=""):
         if type=='SOA':
@@ -111,7 +111,7 @@ class PowerDNSZone(DNSZone):
     def delete(self, name, type=None):
         if self._q(name, type).delete():
             LOG.info("[%s]: Record (%s, %s) was deleted" % 
-                (self.zone_name, rec.name, rec.type))
+                (self.zone_name, name, type))
             return "ok"
         else:
             raise Exception("No records was deleted")

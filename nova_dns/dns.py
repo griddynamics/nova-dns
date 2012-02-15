@@ -69,9 +69,13 @@ class VersionFilter(object):
             version = json.dumps({
                 "version": __version__,
                 "application": "nova-dns",
-                "links": [{ "href": "http://%s:%s/zones" %
-                    (req.environ["SERVER_NAME"], req.environ["SERVER_PORT"]),
-                "rel": "self"}]
+                "links": [{ 
+                    "href": "http://%s:%s/zone" %
+                      (req.environ["SERVER_NAME"], req.environ["SERVER_PORT"]),
+                    "rel": "self"},
+                    { "href": "http://%s:%s/record" %
+                      (req.environ["SERVER_NAME"], req.environ["SERVER_PORT"]),
+                    "rel": "self"}]
                 })
             return webob.Response(version, content_type='application/json')
         return req.get_response(self.application)
@@ -106,7 +110,7 @@ class Controller(object):
             elif action=="zone_get":
                 result=self.manager.get(args['zonename']).get_soa().__dict__
             elif action=="zone_del":
-                result=self.manager.drop(args['zonename'], args.get('force', None))
+                result=self.manager.drop(args['zonename'], req.GET.get('force', None))
             elif action=="zone_add":
                 soa={}
                 for p in ("primary", "hostmaster", "serial", "refresh",
@@ -114,7 +118,11 @@ class Controller(object):
                     soa[p]=req.GET.get(p, None)
                 result=self.manager.add(args['zonename'], soa)
             elif action=="list":
-                result=[r.__dict__ for r in self.manager.get(args['zonename']).get()]
+                name=req.GET.get('name', None)
+                name="" if name=='@' else name
+                type=req.GET.get('type', None)
+                records=self.manager.get(args['zonename']).get(name=name, type=type)
+                result=[r.__dict__ for r in records] 
             elif action=="record_add":
                 rec=DNSRecord(
                     name="" if args['name']=='@' else args['name'],

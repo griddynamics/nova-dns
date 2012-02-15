@@ -1,3 +1,8 @@
+0.0.6 [Wed Feb 15 18:48:16 EET 2012]
+* [Doc] added project documentation
+* [REST] updated 'GET /' endpoint
+* [REST] bugfix zone delete with 'force' param
+* [REST] added '@' name support in 'GET /record...' filtering
 0.0.5 [Tue Feb 14 19:47:32 EET 2012]
 * added etc/* in nova-dns.spec 
 * [DNS] adding `normname` normalization of domain names.
