@@ -1,5 +1,5 @@
 
-__version__ = "0.0.6"
+__version__ = "0.1.0"
 
 try:
     from nova import flags
@@ -9,6 +9,9 @@ try:
                         "DNS manager class")
     flags.DEFINE_string("dns_listener", "nova_dns.listener.simple.Listener",
                         "Class to process AMQP messages")
+    flags.DEFINE_string("dns_api_paste_config", "/etc/nova-dns/dns-api-paste.ini",
+                        "File name for the paste.deploy config for nova-dns api")
+
 except:
     #make setup.py happy
     pass

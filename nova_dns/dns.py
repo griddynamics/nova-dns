@@ -33,16 +33,14 @@ import routes.middleware
 
 from nova import wsgi
 from nova import service
-#from nova_dns import keystone_utils
 from nova_dns import __version__
 from nova_dns.dnsmanager import DNSRecord, DNSSOARecord
+from nova_dns.auth import AUTH
 
 LOG = logging.getLogger("nova_dns.dns")
 FLAGS = flags.FLAGS
 
 
-flags.DEFINE_string("dns_api_paste_config", "/etc/nova-dns/dns-api-paste.ini",
-                    "File name for the paste.deploy config for nova-dns api")
 flags.DEFINE_string("dns_listen", "0.0.0.0",
                     "IP address for DNS API to listen")
 flags.DEFINE_integer("dns_listen_port", 15353,
@@ -102,9 +100,20 @@ class Controller(object):
         """
         """
         try:
-            args=req.environ["wsgiorg.routing_args"][1]
-            action=args["action"]
+            args = req.environ["wsgiorg.routing_args"][1]
+            action = args["action"]
+            if action in ('index', 'zone_get', 'list'):
+                action_type = "read"
+            else:
+                action_type = "write"
+            #TODO remove keystone middleware and directly authenticate
+            #with keystoneclient.tokens.authneticate - right now this is
+            #buggy - if token incorect, keystonectlient return amazing
+            #error 'maximum recursion depth exceeded in cmp'
+            if not AUTH.can(req, args.get('zonename', None))[action_type]:
+                raise Exception('unauthorized')
             result={}
+
             if action=="index":
                 result=self.manager.list()
             elif action=="zone_get":

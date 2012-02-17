@@ -1,17 +1,14 @@
 Overview
 ===========================
 
-The dns service listen for attach/detach floating ip to an instance and 
-update dns server accordingly.
+The dns service listen for start/terminate instances and update dns 
+server accordingly.
 
 
 Configuration
 ===========================
 
-TODO
-
-The server saves logs to ``/var/log/nova/nova-dns.log``.
-
+Check config.html for details 
 
 RPM Building
 ===========================
@@ -26,13 +23,5 @@ directory and run::
 Quickstart
 ===========================
 
-Install the package::
-
-    # yum install nova-dns
-
-Start the server::
-
-    # /etc/init.d/nova-dns start
-
-Now instance state changes will be stored to a database.
+Check quickstart.html for details
 

@@ -1,3 +1,7 @@
+0.1.0 [Fri Feb 17 10:21:04 EET 2012]
+* [AUTH] Added authorization in REST API
+* [simple] added resolve project_id=>project_name if nova configure with
+  keystone auth 
 0.0.6 [Wed Feb 15 18:48:16 EET 2012]
 * [Doc] added project documentation
 * [REST] updated 'GET /' endpoint

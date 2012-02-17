@@ -42,6 +42,19 @@ Core options
 * ``dns_soa_expire``
   Indicates when the zone data is no longer authoritative 
   (integer, *604800*  by default)
+* ``dns_zone`` 
+  Nova DNS base zone
+  (string, *localzone* by default)
+* ``dns_auth``
+  "Auth mode in REST API"
+  (enum ("none", "keystone"), *keystone* by default)
+* ``dns_nova_auth``
+  "Auth mode in Nova"
+  (enum ("none", "keystone"), *keystone* by defautl)
+* ``dns_auth_role``
+  "Role name in REST API"
+  (string, *DNS_Admin* by default)
+
 
 nova_dns.dnsmanager.powerdns
 ++++++++++++++++++++++++++++
@@ -51,9 +64,6 @@ nova_dns.dnsmanager.powerdns
 
 nova_dns.listener.simple
 ++++++++++++++++++++++++
-* ``dns_zone`` 
-  Nova DNS base zone
-  (string, *localzone* by default)
 * ``dns_ns``
   Name servers, in format ns1:ip1, ns2:ip2
   (list, *ns1:127.0.0.1* by default)

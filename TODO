@@ -1,12 +1,12 @@
+* check rpm deps - nova, keystone, ...
 * DNS API
-** rest docs/tests
+** rest tests
 ** DNS api docs
 ** powerdns tests 
 ** keystone auth in REST
 ** add support for 'robot' records - refuse for robot to update record if
    it somebody added/changed it
 * AMQP
-** add support for terminate 
 ** on run instance create zone(s) hostname.projectname.fixedzone and add
    'A' record 
 ** work with PTR records - probably support both plain reverse zone

@@ -14,19 +14,19 @@ from nova import flags
 
 from nova_dns.dnsmanager import DNSRecord
 from nova_dns.listener import AMQPListener
-
+from nova_dns import auth
 
 
 
 LOG = logging.getLogger("nova_dns.listener.simple")
 FLAGS = flags.FLAGS
-SLEEP = 60
+SLEEP = 60 
+
+AUTH = auth.AUTH
 
 #TODO make own zone for every instance
-flags.DEFINE_string("dns_zone", "localzone", "Nova DNS base zone")
-flags.DEFINE_list("dns_ns", "ns1:127.0.0.1", "Name servers, in format ns1:ip1, ns2:ip2")
-
 #TODO add flag "dns_create_ptr", and create PTR records
+flags.DEFINE_list("dns_ns", "ns1:127.0.0.1", "Name servers, in format ns1:ip1, ns2:ip2")
 
 class Listener(AMQPListener):
     def __init__(self):
@@ -55,7 +55,8 @@ class Listener(AMQPListener):
                     LOG.info("Instance %s hostname '%s' was terminated" %
                         (id, rec.hostname))
                     #TODO check if record was added/changed by admin
-                    zone=self.dnsmanager.get(rec.project_id+'.'+FLAGS.dns_zone)
+                    zonename = AUTH.tenant2zonename(rec.project_id)
+                    zone=self.dnsmanager.get(zonename)
                     zone.delete(rec.hostname, 'A')
                 except:
                     pass
@@ -89,7 +90,7 @@ class Listener(AMQPListener):
                         LOG.warn(str(e))
                     except:
                         pass
-                zonename=r.project_id+'.'+FLAGS.dns_zone
+                zonename = AUTH.tenant2zonename(r.project_id)
                 if zonename not in zones_list:
                     #TODO add exception ZoneExists and pass only it
                     try:
