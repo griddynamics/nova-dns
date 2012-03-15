@@ -171,7 +171,7 @@ class App(wsgi.Router):
         GET /zone
             return list of all zones
         GET /zone/name
-            return SSON for SOA if zone exists
+            return JSON for SOA if zone exists
         PUT /zone/name[?soa_params]
             create new zone. if no params for SOA provided, backend
             _has_to_ use reasonable defaults. Return 'ok' on success

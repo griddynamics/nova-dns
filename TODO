@@ -1,4 +1,5 @@
 * check rpm deps - nova, keystone, ...
+* rename README in README.md
 * DNS API
 ** rest tests
 ** DNS api docs

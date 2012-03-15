@@ -103,7 +103,14 @@ setup ns servers:
 .. code-block:: bash 
 
    LOCALDNS=`perl -e '$ns=1; print join(",", map {sprintf "ns%d:%s", $ns++, $_} split /\s*,\s*/,$ARGV[0])' "$LOCALIP"
-   echo "--dns_ns=$LOCALIP" >> $NOVA 
+   echo "--dns_ns=$LOCALDNS" >> $NOVA 
+
+add service in keystone
+
+.. code-block:: bash
+
+   keystone-manage service add nova_dns nova_dns "DNS for OpenStack"
+   keystone-manage endpointTemplates add RegionOne nova_dns http://$LOCALIP:15353 http://$LOCALIP:15353 http://$LOCALIP:15353 1 1
 
 start service: 
 
