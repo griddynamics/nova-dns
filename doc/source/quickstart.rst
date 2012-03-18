@@ -105,6 +105,30 @@ setup ns servers:
    LOCALDNS=`perl -e '$ns=1; print join(",", map {sprintf "ns%d:%s", $ns++, $_} split /\s*,\s*/,$ARGV[0])' "$LOCALIP"
    echo "--dns_ns=$LOCALDNS" >> $NOVA 
 
+^^^^^^^^^^^^^^^^^^^^^
+Configure PTR support
+^^^^^^^^^^^^^^^^^^^^^
+
+Turn on managing PTR records:
+
+.. code-block:: bash
+
+   echo "--dns_ptr" >> $NOVA
+
+PTR records will be created for C class network, *octet3.octet2.octet1.id-addr.arpa* zone will be created automatically if not exists
+
+Turn on classless delegation (Sub-delegate less than a class C (< 256 IP
+addresses)):
+
+.. code-block:: bash
+
+   export ZONES="192.168.1.0/28, 192.168.2.0/24" #just example
+   echo "--dns_ptr_zones=$PTR_ZONES" >> $NOVA
+
+For examples above PTR records will be added in zones
+*0-28.1.168.192.in-addr.arpa* and *0-24.2.168.192.in-addr.arpa*
+
+
 add service in keystone
 
 .. code-block:: bash

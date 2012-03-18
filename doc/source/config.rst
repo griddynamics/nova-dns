@@ -67,7 +67,12 @@ nova_dns.listener.simple
 * ``dns_ns``
   Name servers, in format ns1:ip1, ns2:ip2
   (list, *ns1:127.0.0.1* by default)
-
+* ``dns_ptr``
+  Manage PTR records
+  (boolean, False by default)
+* ``dns_ptr_zones``
+  Classless delegation networks in format ip_addr/network
+  (list, '' by default)
 
 
 Options, used by Nova DNS to connect to rabbit
