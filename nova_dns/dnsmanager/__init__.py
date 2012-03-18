@@ -101,13 +101,13 @@ class DNSRecord:
         self.ttl=int(ttl) if ttl else FLAGS.dns_default_ttl
     @staticmethod
     def normtype(type):
-        t=type.upper()
+        t=str(type).upper()
         if t not in record_types:
             raise ValueError("Incorrect type: " + type)
         return t
     @staticmethod
     def normname(n):
-        name = n.lower()
+        name = str(n).lower()
         if name=="" or re.match(r'\A(?:[\w\d-]+\.)*(?:[\w\d-]+)\Z', name):
             return name
         else:

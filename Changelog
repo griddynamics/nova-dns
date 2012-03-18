@@ -1,3 +1,7 @@
+0.2.0 [Sun Mar 18 02:15:23 EET 2012]
+* [simple] Add support for PTR records
+0.1.1 [Thu Mar 15 19:27:47 EET 2012]
+* [TEST] Added basic unittests
 0.1.0 [Fri Feb 17 10:21:04 EET 2012]
 * [AUTH] Added authorization in REST API
 * [simple] added resolve project_id=>project_name if nova configure with
