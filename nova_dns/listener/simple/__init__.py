@@ -49,7 +49,8 @@ flags.DEFINE_list('dns_ptr_zones', "", "Classless delegation networks in format 
 class Listener(AMQPListener):
     def __init__(self):
         self.pending={}
-        self.conn=sqlalchemy.engine.create_engine(FLAGS.sql_connection)
+        self.conn=sqlalchemy.engine.create_engine(FLAGS.sql_connection, 
+            pool_recycle=FLAGS.sql_idle_timeout, echo=False)
         dnsmanager_class=utils.import_class(FLAGS.dns_manager);
         self.dnsmanager=dnsmanager_class()
         self.eventlet = eventlet.spawn(self._pollip)

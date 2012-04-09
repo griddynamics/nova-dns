@@ -111,7 +111,7 @@ class Controller(object):
             #with keystoneclient.tokens.authneticate - right now this is
             #buggy - if token incorect, keystonectlient return amazing
             #error 'maximum recursion depth exceeded in cmp'
-            if not AUTH.can(req, args.get('zonename', None))[action_type]:
+            if not AUTH.can(req, args.get('zonename', ''))[action_type]:
                 raise Exception('unauthorized')
             result={}
 

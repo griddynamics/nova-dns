@@ -1,3 +1,7 @@
+0.2.2 [Tue Apr 12 00:14:52 EET 2012]
+* [DNS] add support for wildcards
+* [simple] fix bug with "MySQL has gone away"
+* [REST] fix problem with get zones list for DNS_Admin users
 0.2.1 [Sun Mar 18 02:47:50 EET 2012]
 * [doc] added documentation for PTR record management
 0.2.0 [Sun Mar 18 02:15:23 EET 2012]

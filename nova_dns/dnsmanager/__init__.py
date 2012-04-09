@@ -108,7 +108,7 @@ class DNSRecord:
     @staticmethod
     def normname(n):
         name = str(n).lower()
-        if name=="" or re.match(r'\A(?:[\w\d-]+\.)*(?:[\w\d-]+)\Z', name):
+        if name=="" or name=="*" or re.match(r'\A(?:[\w\d-]+\.)*(?:[\w\d-]+)\Z', name):
             return name
         else:
             raise ValueError("Incorrect DNS name: " + name)
